@@ -53,7 +53,6 @@ void Iceman::update() {
 		return;
 	handleInput();
 }
-
 void Iceman::handleInput()
 {
 	int ch;
@@ -89,3 +88,4 @@ void Iceman::handleInput()
 		}
 	}
 }
+//Protestor Implementation

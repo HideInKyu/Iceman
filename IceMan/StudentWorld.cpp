@@ -296,3 +296,5 @@ bool StudentWorld::doActorsCollide(const Actor* a1, const Actor* a2) const
 
 	return !noOverlap;
 }
+
+//---**** ADD PROTESTOR IMPLEMENTATION HERE ****---

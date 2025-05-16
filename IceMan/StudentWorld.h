@@ -79,6 +79,8 @@ private:
 	void mineIce();
 	void auxMineIce(Ice* iceToBreak, int x, int y);
 
+	// Protestor Implementation
+
 	double calculateDistance(const Actor* a1, const Actor* a2) const;	// Calculate Actors Distance
 	double calculateDistance(int x1, int x2, int y1, int y2) const; 	// Calculate "Hypothetical/Numerical" Distances
 	
