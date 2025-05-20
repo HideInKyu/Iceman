@@ -72,6 +72,7 @@ private:
 
 	// move() helper
 	void updateDisplayText();
+	void handleCollisions(std::vector<Actor*>& actors);
 	void removeDeadGameObjects();
 
 	// Actor Interactions:

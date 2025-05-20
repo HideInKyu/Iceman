@@ -6,17 +6,20 @@ using namespace std;
 // Actor Implementation
 Actor::~Actor() {} // Worst Case Scenario: no Actor-derived class destructor available
 void Actor::update() {}
-
+void Actor::doSomething() {}
 // TODO: implement collidesWith(...)
 
 
 // Environment Implementation
 Environment::~Environment() {}
 void Environment::update() {}
+void Environment::doSomething() {}
 
 // Ice Implementation:
 Ice::~Ice() {}
 void Ice:: update() {} // TODO: Implement Ice::update()
+void Ice::doSomething() {}
+
 
 // Boulder Implementation:
 Boulder::~Boulder(){}
@@ -30,20 +33,37 @@ void Boulder::update(){
 			moveTo(this->getX(), this->getY() - 1);
 		}
 	}
-
 } 
+void Boulder::doSomething() {}
 
 // Goodies Implementation:
 Goodies::~Goodies() {}
-void Goodies::update() {}
+void Goodies::update() {
+
+}
+void Goodies::doSomething() { 
+	if (!isActive())
+		return;
+	toggleActive();
+}
 
 // GoldNugget Implementation:
 GoldNugget::~GoldNugget() {}
 void GoldNugget::update() {}
+void GoldNugget::doSomething() { 
+	if (!isActive())
+		return;
+	toggleActive();
+}
 
 // BarrelOfOil Implementation:
 BarrelOfOil::~BarrelOfOil(){}
 void BarrelOfOil::update() {}
+void BarrelOfOil::doSomething() { 
+	if (!isActive())
+		return;
+	toggleActive(); 
+}
 
 
 // Iceman Implementation:
@@ -53,10 +73,11 @@ void Iceman::update() {
 		return;
 	handleInput();
 }
+void Iceman::doSomething() {}
 void Iceman::handleInput()
 {
 	int ch;
-	if (studentWorld->getKey(ch) == true)
+	if (getStudentWorld()->getKey(ch) == true)
 	{
 		switch (ch) {
 		case KEY_PRESS_LEFT:
@@ -84,7 +105,7 @@ void Iceman::handleInput()
 				setDirection(Direction::down);
 			break;
 		case KEY_PRESS_SPACE:
-			studentWorld->decLives();
+			getStudentWorld()->decLives();
 		}
 	}
 }

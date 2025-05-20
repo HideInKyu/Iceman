@@ -1,1 +1,10 @@
-﻿  IceMan.vcxproj -> C:\Users\marec\source\repos\IceMan\Debug\IceMan.exe
+﻿  StudentWorld.cpp
+C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(11,77): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  (compiling source file 'StudentWorld.cpp')
+  
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(30,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(63,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(202,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(216,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(235,20): warning C4018: '<': signed/unsigned mismatch
+  IceMan.vcxproj -> C:\Users\marec\source\repos\IceMan\Debug\IceMan.exe
