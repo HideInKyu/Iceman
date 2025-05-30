@@ -60,9 +60,9 @@ int StudentWorld::init() {
 
 	// Distribute Environment Actors
 	distributeOilFieldContents(actors);
-	for (int i = 0; i < actors.size(); i++) {
-		actors[i]->setVisible(true);
-	}
+	//for (int i = 0; i < actors.size(); i++) {
+	//	actors[i]->setVisible(true);
+	//}
 
 	// Set Up Player
 	iceman = new Iceman(30, 60, this);
@@ -77,9 +77,10 @@ int StudentWorld::init() {
 int StudentWorld::move()
 {
 	// TODO:
-	// updateDisplayText();
-	// Call update() for all actors
+	updateDisplayText();
 	removeDeadGameObjects();
+	handleFallingObjects();
+	spawnRandomGoodies();
 
 	// TODO: return proper result:
 	// GWSTATUS_PLAYER_DIED
@@ -158,8 +159,9 @@ void StudentWorld::distributeBoulders(vector<Actor*>& actors)
 				ice2DArray[boulderSpawnX + j][boulderSpawnY + k] = nullptr;
 			}
 		}
-
-		actors.push_back(new Boulder(boulderSpawnX, boulderSpawnY, this));
+		Actor* temp = new Boulder(boulderSpawnX, boulderSpawnY, this);
+		temp->setVisible(true);
+		actors.push_back(temp);
 	}
 
 }
@@ -212,11 +214,64 @@ bool StudentWorld::isTooCloseToOtherActors(int x, int y, const std::vector<Actor
 	return false;
 }
 
+void StudentWorld::updateDisplayText()
+{
+	string msg = "";
+	msg += "Lvl: " + std::to_string(currentLevel);
+	msg += " Lives : " + std::to_string(getLives());
+	msg += " Hlth : " + std::to_string(iceman->getHitPoints() * 10);
+	msg += " Wtr: " + std::to_string(iceman->getWaterSquirts());
+	msg += " Gld: " + std::to_string(iceman->getGoldNuggets());
+	msg += " Oil Left : ";
+	msg += " Sonar: " + std::to_string(iceman->getSonarCharges());
+	msg += " Scr: " + std::to_string(getScore());
+	setGameStatText(msg);
+}
+
 void StudentWorld::handleCollisions(std::vector<Actor*>& actors){
 	// Handle Player Collisions
 	for (int i = 0; i < actors.size(); i++) {
 		if (actors[i] != nullptr && doActorsCollide(iceman, actors[i]))
-				actors[i]->doSomething();
+			iceman->interactWith(actors[i]);
+	}
+}
+
+bool StudentWorld::checkBelowForIce(Actor* a)
+{
+	int spriteSize = a->getHitBoxSize();
+	int x = a->getX();
+	int y = a->getY() - 1;
+	for (int i = 0; i < spriteSize; i++) {
+		if (ice2DArray[x + i][y] == nullptr) {
+			a->setWaiting(true);
+		}
+
+		else {
+			a->setWaiting(false);
+			a->resetWaitingTicks();
+			return false;
+		}
+	}
+	return true;
+}
+
+void StudentWorld::spawnRandomGoodies()
+{
+	int G1 = currentLevel * 30 + 290;
+	if (rand() % (G1 + 1) == 0) {
+		// TODO:
+		// Spawn 1/5 Sonar Kit 4/5 Water Goodie:
+		int G2 = (rand() % 5) + 1;
+		if (G2 <= 4) {
+			// Spawn Water
+		}
+		else if (G2 == 5) {
+			// Spawn Sonar Kit
+			Actor* temp = new SonarKit(this);
+			temp->setVisible(true);
+			actors.push_back(temp);
+			temp = nullptr;
+		}
 	}
 }
 
@@ -237,6 +292,18 @@ void StudentWorld::removeDeadGameObjects()
 		if (actors[i] != nullptr && !actors[i]->isActive()) {
 			 delete actors[i];
 			 actors[i] = nullptr;
+		}
+	}
+}
+
+void StudentWorld::handleFallingObjects()
+{
+	for (int i = 0; i < actors.size(); i++) {
+		if (actors[i] != nullptr) {
+			actors[i]->update();
+			if (actors[i]->hasGravity()) {
+				checkBelowForIce(actors[i]);
+			}
 		}
 	}
 }

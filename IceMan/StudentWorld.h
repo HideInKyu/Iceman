@@ -74,6 +74,9 @@ private:
 	void updateDisplayText();
 	void handleCollisions(std::vector<Actor*>& actors);
 	void removeDeadGameObjects();
+	void handleFallingObjects();
+	bool checkBelowForIce(Actor* a);
+	void spawnRandomGoodies();
 
 	// Actor Interactions:
 	bool doActorsCollide(const Actor* a1, const Actor* a2) const;
