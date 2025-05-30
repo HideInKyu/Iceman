@@ -1,10 +1,25 @@
-﻿  StudentWorld.cpp
-C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(11,77): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+﻿  Actor.cpp
+C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(12,77): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  (compiling source file 'Actor.cpp')
+  
+C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(144,19): error C3861: 'max': identifier not found
+  (compiling source file 'Actor.cpp')
+  
+  StudentWorld.cpp
+C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(12,77): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
   (compiling source file 'StudentWorld.cpp')
   
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(30,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(205,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(233,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(291,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(301,20): warning C4018: '<': signed/unsigned mismatch
-  IceMan.vcxproj -> C:\Users\marec\source\repos\IceMan\Debug\IceMan.exe
+C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(144,58): error C2027: use of undefined type 'StudentWorld'
+  (compiling source file 'StudentWorld.cpp')
+      C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(6,7):
+      see declaration of 'StudentWorld'
+  
+C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(144,19): error C3861: 'max': identifier not found
+  (compiling source file 'StudentWorld.cpp')
+  
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(37,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(214,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(242,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(300,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(310,20): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...

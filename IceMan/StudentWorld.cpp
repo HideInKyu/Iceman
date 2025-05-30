@@ -3,6 +3,13 @@
 // Actor.h
 // Actor.cpp
 
+// Don't spawn shit in tunnels (except water) -- function
+// make goodies affect player inventory counts
+// allow player to drop gold nuggets
+// sonar kit
+
+
+
 #include "StudentWorld.h"
 #include <string>
 using namespace std;
@@ -35,6 +42,7 @@ StudentWorld::~StudentWorld()
 }
 
 // TODO: Implement init()
+// DONE
 int StudentWorld::init() {
 
 	// Initialize ice
@@ -53,6 +61,7 @@ int StudentWorld::init() {
 	}
 
 	// Set Environment amounts:
+	int currentLevel = int(getLevel());
 	numBoulders = min(currentLevel / 2 + 2, 9);
 	numGoldNuggets = max(5 - currentLevel / 2, 2);
 	numBarrelsOfOil = min(2 + currentLevel, 21);
@@ -70,7 +79,7 @@ int StudentWorld::init() {
 
 
 	// TODO: Figure out when to update level
-	// currentLevel++;
+	// advanceToNextLevel();
 	return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -79,7 +88,7 @@ int StudentWorld::move()
 	// TODO:
 	updateDisplayText();
 	removeDeadGameObjects();
-	handleFallingObjects();
+	updateAllActors();
 	spawnRandomGoodies();
 
 	// TODO: return proper result:
@@ -217,7 +226,7 @@ bool StudentWorld::isTooCloseToOtherActors(int x, int y, const std::vector<Actor
 void StudentWorld::updateDisplayText()
 {
 	string msg = "";
-	msg += "Lvl: " + std::to_string(currentLevel);
+	msg += "Lvl: " + std::to_string(getLevel());
 	msg += " Lives : " + std::to_string(getLives());
 	msg += " Hlth : " + std::to_string(iceman->getHitPoints() * 10);
 	msg += " Wtr: " + std::to_string(iceman->getWaterSquirts());
@@ -257,7 +266,7 @@ bool StudentWorld::checkBelowForIce(Actor* a)
 
 void StudentWorld::spawnRandomGoodies()
 {
-	int G1 = currentLevel * 30 + 290;
+	int G1 = getLevel() * 30 + 290;
 	if (rand() % (G1 + 1) == 0) {
 		// TODO:
 		// Spawn 1/5 Sonar Kit 4/5 Water Goodie:
@@ -296,14 +305,31 @@ void StudentWorld::removeDeadGameObjects()
 	}
 }
 
-void StudentWorld::handleFallingObjects()
+void StudentWorld::updateAllActors()
 {
 	for (int i = 0; i < actors.size(); i++) {
-		if (actors[i] != nullptr) {
-			actors[i]->update();
-			if (actors[i]->hasGravity()) {
+		Actor* a = actors[i];
+		if (a != nullptr) {
+			a->update();
+			if (a->hasGravity()) {
 				checkBelowForIce(actors[i]);
 			}
+			
+			// Check if goodies are within 4 units of Iceman
+			// TODO: Make into separate function 
+			// (MAYBE place formula into calculateDistance(...) function to normalize
+			// all distances being calculated from center of sprites
+			// Iceman Sprite Midpoint Calculation
+			if (a->isEnvironmentObject()) {
+				int midPointPlayerX = iceman->getX() + (iceman->getHitBoxSize() / 2);
+				int midPointPlayerY = iceman->getY() + (iceman->getHitBoxSize() / 2);
+				// Current Actor Sprite Midpoint Calculation
+				int midPointCurrX = a->getX() + (a->getHitBoxSize() / 2);
+				int midPointCurrY = a->getY() + (a->getHitBoxSize() / 2);
+				if (calculateDistance(midPointPlayerX, midPointPlayerY, midPointCurrX, midPointCurrY) < 6)
+					a->setVisible(true);
+			}
+
 		}
 	}
 }
@@ -368,7 +394,15 @@ void StudentWorld::auxMineIce(Ice* iceToBreak, int iceX, int iceY)
 	}
 }
 
-// ***HAS NOT BEEN TESTED YET-- MAY NOT WORK***
+void StudentWorld::handlePlayerDropGoldNugget() {
+	GoldNugget* droppedNugget = new GoldNugget(iceman->getX(), iceman->getY(), this);
+	droppedNugget->setVisible(true);
+	droppedNugget->setCanProtestorPickUp(true);
+	// droppedNugget->setCanPlayerPickUp(false); // Invariant taken care of in setCanPlayerPickUp function
+	Actor* wrapper = droppedNugget;
+	actors.push_back(wrapper);
+}
+
 bool StudentWorld::doActorsCollide(const Actor* a1, const Actor* a2) const
 {
 	if (a1 == nullptr || a2 == nullptr)

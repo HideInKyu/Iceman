@@ -4,6 +4,7 @@
 // ---****---
 #include "StudentWorld.h"
 class StudentWorld;
+class Iceman;
 
 class Actor : public GraphObject {
 public:
@@ -12,7 +13,7 @@ public:
 	
 	virtual ~Actor() = 0;
 	virtual void update() = 0;
-	virtual void handlePlayerInteraction();
+	virtual void handlePlayerInteraction(Iceman* player);
 	// virtual void doSomething() = 0;
 	// TODO: ADD ANNOYED FUNCTION AND VARIABLE
 	
@@ -103,11 +104,25 @@ public:
 		:Goodies(IID_GOLD, startX, startY, Direction::right, 1.00, 0, sw) {}
 	~GoldNugget();
 	void update();
-	void handlePlayerInteraction() override;
+	void handlePlayerInteraction(Iceman* player) override;
 	// void doSomething();
+	void setCanProtestorPickUp(bool shouldProtestorPickUp) { 
+		canProtestorPickUp = shouldProtestorPickUp;
+		canPlayerPickUp = !canProtestorPickUp;
+		isPermanent = canPlayerPickUp;
+	}
+	void setCanPlayerPickUp(bool shouldPlayerPickUp) { 
+		canPlayerPickUp = shouldPlayerPickUp; 
+		canProtestorPickUp = !canPlayerPickUp;
+		isPermanent = canPlayerPickUp;
+	}
 private:
-	bool canProtestorPickUp;
-	bool canPlayerPickUp;
+	// SET LIFETIME_TICKS IN CONSTR BASED ON SOMETHING IDK
+	int lifetimeTicks = 120;
+	// INVARIANT: isPermanent = canPlayerPickUp = !canProtestorPickUp
+	bool canPlayerPickUp = true;
+	bool canProtestorPickUp = false;
+	bool isPermanent = canPlayerPickUp;
 };
 
 class BarrelOfOil : public Goodies {
@@ -116,7 +131,7 @@ public:
 		:Goodies(IID_BARREL, startX, startY, Direction::right, 1.00, 0, sw) {}
 	~BarrelOfOil();
 	void update();
-	void handlePlayerInteraction() override;
+	void handlePlayerInteraction(Iceman* player) override;
 	// void doSomething();
 private:
 };
@@ -124,10 +139,14 @@ private:
 class SonarKit : public Goodies {
 public:
 	SonarKit(StudentWorld* sw)
-		:Goodies(IID_SONAR, 0, 60, Direction::right, 1.00, 0, sw) {}
-	void handlePlayerInteraction() override;
+		:Goodies(IID_SONAR, 0, 60, Direction::right, 1.00, 0, sw)
+	{
+		//int T = max(100, int(300 - 10 * getStudentWorld()->getLevel()));
+		//lifetimeTicks;
+	}
+	void handlePlayerInteraction(Iceman* player) override;
 private: 
-
+	int lifetimeTicks = 0;
 };
 
 
@@ -138,13 +157,18 @@ public:
 	void update();
 	void interactWith(Actor* a) override {
 		if (a->isEnvironmentObject())
-			a->handlePlayerInteraction();
+			a->handlePlayerInteraction(this);
 	}
 	
+	// getters
 	int getHitPoints() const { return hitPoints; }
 	int getWaterSquirts() const { return waterSquirts; }
 	int getSonarCharges() const { return sonarCharges; }
 	int getGoldNuggets() const { return goldNuggets; }
+
+	// setters
+	void incGoldNuggets() { goldNuggets++; }
+	void decGoldNuggets() { goldNuggets--; }
 
 	// void doSomething();
 private:
@@ -155,6 +179,7 @@ private:
 
 	// update() helpers:
 	void handleInput();
+	void dropGoldNugget();
 };
 
 //---****CODE FOR ROY****---

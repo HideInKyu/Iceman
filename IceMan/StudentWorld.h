@@ -46,6 +46,8 @@ public:
 		// OR player successfully completes level
 		// Frees (Deletes) all Actors
 
+	// Iceman Abilities: MUST BE PUBLIC TO INTERACT WITH ICEMAN
+	void handlePlayerDropGoldNugget();
 
 private:
 	std::vector<Actor*> actors;
@@ -56,7 +58,7 @@ private:
 	Ice* ice2DArray[ICE_ARRAY_SIZE][ICE_ARRAY_SIZE];
 
 	// TODO: move to constructor
-	int currentLevel = 0; 
+	//int currentLevel = 0; 
 	int numBoulders;
 	int numGoldNuggets;
 	int numBarrelsOfOil;
@@ -73,8 +75,9 @@ private:
 	// move() helper
 	void updateDisplayText();
 	void handleCollisions(std::vector<Actor*>& actors);
+	// void handleFallingObjects();
+	void updateAllActors();
 	void removeDeadGameObjects();
-	void handleFallingObjects();
 	bool checkBelowForIce(Actor* a);
 	void spawnRandomGoodies();
 

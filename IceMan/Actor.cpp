@@ -7,7 +7,7 @@ using namespace std;
 // Actor Implementation
 Actor::~Actor() {} // Worst Case Scenario: no Actor-derived class destructor available
 void Actor::update() {}
-void Actor::handlePlayerInteraction() {}
+void Actor::handlePlayerInteraction(Iceman* player) {}
 // TODO: implement collidesWith(...)
 
 
@@ -41,21 +41,35 @@ void Goodies::update() {
 
 // GoldNugget Implementation:
 GoldNugget::~GoldNugget() {}
-void GoldNugget::update() {}
-void GoldNugget::handlePlayerInteraction() {
+void GoldNugget::update() {
+	if (!isPermanent) {
+		lifetimeTicks--;
+		if (lifetimeTicks <= 0) {
+			toggleActive();
+		}
+	}
+}
+void GoldNugget::handlePlayerInteraction(Iceman* player) {
 	if (!isActive())
 		return;
-	toggleActive();
+	
+	if (canPlayerPickUp) {
+		// TODO: ADD SOUND EFFECT
+		player->incGoldNuggets();
+		getStudentWorld()->increaseScore(10);
+		toggleActive();
+	}
 }
 
 // BarrelOfOil Implementation:
 BarrelOfOil::~BarrelOfOil(){}
-void BarrelOfOil::update() {}
-void BarrelOfOil::handlePlayerInteraction() {
+void BarrelOfOil::update() {
+}
+void BarrelOfOil::handlePlayerInteraction(Iceman* player) {
 	if (!isActive())
 		return;
 
-	//playSound(SOUND_FOUND_OIL);
+	//TODO: MAKE WORK! GameWorld::playSound(SOUND_FOUND_OIL);
 	getStudentWorld()->increaseScore(1000);
 
 	toggleActive();
@@ -101,13 +115,20 @@ void Iceman::handleInput()
 				setDirection(Direction::down);
 			break;
 		case KEY_PRESS_SPACE:
-			getStudentWorld()->decLives();
+			dropGoldNugget();
 		}
 	}
 }
 
+void Iceman::dropGoldNugget() {
+	if (goldNuggets > 0) {
+		getStudentWorld()->handlePlayerDropGoldNugget();
+		goldNuggets--;
+	}
+}
+
 // TODO: IMPLEMENT METHOD
-void SonarKit::handlePlayerInteraction()
+void SonarKit::handlePlayerInteraction(Iceman* player)
 {
 }
 
