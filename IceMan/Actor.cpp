@@ -1,87 +1,31 @@
 #include "Actor.h"
 #include "StudentWorld.h"
-// ---****---
-#include "GameController.h"
-using namespace std;
+// ----****----
+#include <cmath>
 
-// Actor Implementation
-Actor::~Actor() {} // Worst Case Scenario: no Actor-derived class destructor available
-void Actor::update() {}
-void Actor::handlePlayerInteraction(Iceman* player) {}
-// TODO: implement collidesWith(...)
+Actor::~Actor() {}
 
+Entity::~Entity() {}
 
-// Environment Implementation
-Environment::~Environment() {}
-void Environment::update() {}
+Iceman::~Iceman() {}
 
-// Ice Implementation:
-Ice::~Ice() {}
-void Ice:: update() {} // TODO: Implement Ice::update()
-
-
-// Boulder Implementation:
-Boulder::~Boulder(){}
-void Boulder::update(){
-	// TODO: Implement Boulder::update()
-	if (isWaiting()) {
-		int currentWaitingTick = getCurrentWaitingTick();
-		if (currentWaitingTick > 0)
-			setWaitingTicks(currentWaitingTick-1);
-		else {
-			moveTo(this->getX(), this->getY() - 1);
-		}
-	}
-} 
-// Goodies Implementation:
-Goodies::~Goodies() {}
-void Goodies::update() {
-
-}
-
-// GoldNugget Implementation:
-GoldNugget::~GoldNugget() {}
-void GoldNugget::update() {
-	if (!isPermanent) {
-		lifetimeTicks--;
-		if (lifetimeTicks <= 0) {
-			toggleActive();
-		}
-	}
-}
-void GoldNugget::handlePlayerInteraction(Iceman* player) {
-	if (!isActive())
-		return;
-	
-	if (canPlayerPickUp) {
-		// TODO: ADD SOUND EFFECT
-		player->incGoldNuggets();
-		getStudentWorld()->increaseScore(10);
-		toggleActive();
-	}
-}
-
-// BarrelOfOil Implementation:
-BarrelOfOil::~BarrelOfOil(){}
-void BarrelOfOil::update() {
-}
-void BarrelOfOil::handlePlayerInteraction(Iceman* player) {
-	if (!isActive())
-		return;
-
-	//TODO: MAKE WORK! GameWorld::playSound(SOUND_FOUND_OIL);
-	getStudentWorld()->increaseScore(1000);
-
-	toggleActive();
-}
-
-
-// Iceman Implementation:
-Iceman::~Iceman(){}
 void Iceman::update() {
 	if (!isActive())
 		return;
 	handleInput();
+}
+
+void Iceman::interactWith(Actor* a) {
+	if (!a->isActive())
+		return;
+	/*
+	if (a->isGoodieObject()) {
+		//TODO: PROBABLY A BETTER WAY TO DO THIS:
+		else if (dynamic_cast<SonarKit*>(a) != nullptr) {
+			incSonarCharges();
+		}
+	}
+	*/
 }
 
 void Iceman::handleInput()
@@ -89,48 +33,175 @@ void Iceman::handleInput()
 	int ch;
 	if (getStudentWorld()->getKey(ch) == true)
 	{
+		int x = getX();
+		int y = getY();
+		const StudentWorld* sw = getStudentWorld();
+
 		switch (ch) {
 		case KEY_PRESS_LEFT:
-			if (getDirection() == Direction::left)
-				moveTo(getX() - 1, getY());
+			if (getDirection() == Direction::left && sw->checkCoordsAreValid(x - 1, y, getHitBoxSize()))
+				moveTo(x - 1, y);
 			else
 				setDirection(Direction::left);
 			break;
 		case KEY_PRESS_RIGHT:
-			if (getDirection() == Direction::right)
-				moveTo(getX() + 1, getY());
+			if (getDirection() == Direction::right && sw->checkCoordsAreValid(x + 1, y, getHitBoxSize()))
+				moveTo(x + 1, y);
 			else
 				setDirection(Direction::right);
 			break;
 		case KEY_PRESS_UP:
-			if (getDirection() == Direction::up)
-				moveTo(getX(), getY() + 1);
+			if (getDirection() == Direction::up && sw->checkCoordsAreValid(x, y + 1, getHitBoxSize()))
+				moveTo(x, y + 1);
 			else
 				setDirection(Direction::up);
 			break;
 		case KEY_PRESS_DOWN:
-			if (getDirection() == Direction::down)
-				moveTo(getX(), getY() - 1);
+			if (getDirection() == Direction::down && sw->checkCoordsAreValid(x, y - 1, getHitBoxSize()))
+				moveTo(x, y - 1);
 			else
 				setDirection(Direction::down);
 			break;
-		case KEY_PRESS_SPACE:
-			dropGoldNugget();
+		case 'z':
+		case 'Z':
+			handleSonarKeyInput();
+			break;
+		case KEY_PRESS_TAB:
+			handleGoldNuggetKeyInput();
+			break;
 		}
 	}
 }
 
-void Iceman::dropGoldNugget() {
-	if (goldNuggets > 0) {
-		getStudentWorld()->handlePlayerDropGoldNugget();
-		goldNuggets--;
+void Iceman::handleSonarKeyInput()
+{
+	if (getNumSonarCharges() > 0) {
+		getStudentWorld()->playSound(SOUND_SONAR);
+		getStudentWorld()->useSonarKit(this);
+		decNumSonarCharges();
 	}
 }
 
-// TODO: IMPLEMENT METHOD
-void SonarKit::handlePlayerInteraction(Iceman* player)
+void Iceman::handleGoldNuggetKeyInput()
 {
+	if (getNumGoldNuggets() > 0) {
+		GoldNugget* g = new GoldNugget(getX(), getY(), getStudentWorld());
+		g->setCanProtestorPickUp(true);
+		g->setVisible(true);
+		getStudentWorld()->addActor(g);
+	}
 }
 
-//Protestor Implementation
+Environment::~Environment() {}
 
+Goodies::~Goodies() {}
+
+Boulder::~Boulder() {}
+void Boulder::update() {
+	if (!isActive())
+		return;
+
+	if (getState() == "stable") {}
+
+	else if (getState() == "waiting") {
+		if (getCurrentWaitingTick() > 0)
+			decCurrentWaitingTick();
+		else {
+			setState("falling");
+			setClippable(false);
+			getStudentWorld()->playSound(SOUND_FALLING_ROCK);
+		}
+	}
+
+	else if (getState() == "falling") {
+		if (getY() < 0)
+			setActive(false);
+		else {
+			moveTo(this->getX(), this->getY() - 1);
+		}
+	}
+
+	else if (getState() == "crashed")
+		setActive(false);
+}
+
+void Boulder::interactWith(Actor* a)
+{
+	if (a->isEntityObject()) {
+		std::string state = getState();
+		if (state == "falling") {
+			static_cast<Entity*>(a)->takeDamage(10);
+		}
+	}
+}
+
+GoldNugget::~GoldNugget() {}
+
+void GoldNugget::update()
+{
+	if (!isActive())
+		return;
+
+	if (lifetimeTicks < 0)
+		setActive(false);
+
+	bool permanent = canPlayerPickUp;
+	if (!permanent)
+		lifetimeTicks--;
+}
+
+void GoldNugget::interactWith(Actor* a)
+{
+	if (a->isPlayerObject() && canPlayerPickUp) {
+		Iceman* player = dynamic_cast<Iceman*>(a);
+		if (player != nullptr) {
+			player->incGoldNuggets();
+			getStudentWorld()->increaseScore(25);
+			getStudentWorld()->playSound(SOUND_GOT_GOODIE);
+			setActive(false);
+		}
+	}
+}
+
+BarrelOfOil::~BarrelOfOil() {}
+
+void BarrelOfOil::update()
+{
+	if (!isActive())
+		return;
+}
+
+void BarrelOfOil::interactWith(Actor* a) {
+	if (a->isPlayerObject()) {
+		StudentWorld* playerWorld = a->getStudentWorld();
+		setActive(false);
+		playerWorld->playSound(SOUND_FOUND_OIL);
+		playerWorld->increaseScore(1000);
+		playerWorld->decNumBarrelsOfOil();
+	}
+}
+
+Ice::~Ice() {}
+
+void SonarKit::update()
+{
+	if (!isActive())
+		return;
+
+	if (lifetimeTicks < 0)
+		setActive(false);
+
+	lifetimeTicks--;
+}
+
+void SonarKit::interactWith(Actor* a) {
+	if (a->isPlayerObject()) {
+		Iceman* player = dynamic_cast<Iceman*>(a);
+		if (player != nullptr) {
+			player->incSonarCharges();
+			getStudentWorld()->increaseScore(75);
+			getStudentWorld()->playSound(SOUND_GOT_GOODIE);
+			setActive(false);
+		}
+	}
+}

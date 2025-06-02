@@ -1,64 +1,133 @@
 #ifndef ACTOR_H_
 #define ACTOR_H_
+
 #include "GraphObject.h"
-// ---****---
+// ----****----
 #include "StudentWorld.h"
+#include "GameConstants.h"
+#include <cmath>
+
+//Forward Declarations:
 class StudentWorld;
-class Iceman;
 
 class Actor : public GraphObject {
 public:
-	Actor(int imageID, int startX, int startY, GraphObject::Direction direction, double size, unsigned int depth, StudentWorld* sw)
-		:GraphObject(imageID, startX, startY, direction, size, depth ), hitBoxSize(size * 4), studentWorld(sw) {}
-	
+	Actor(int imageID, int startX, int startY, GraphObject::Direction, double size, unsigned int depth, StudentWorld* sw)
+		:GraphObject(imageID, startX, startY, direction, size, depth), hitBoxSize(size * 4), studentWorld(sw) {}
 	virtual ~Actor() = 0;
-	virtual void update() = 0;
-	virtual void handlePlayerInteraction(Iceman* player);
-	// virtual void doSomething() = 0;
-	// TODO: ADD ANNOYED FUNCTION AND VARIABLE
-	
-	// Getters 
+
+	// getters:
 	StudentWorld* getStudentWorld() const { return studentWorld; }
-	bool isActive() const{ return active; }
+	bool isActive() const { return active; }
 	bool isClippable() const { return clippable; }
-	bool isWaiting() const { return waiting; }
-	int getHitBoxSize() const { return hitBoxSize; }
-	int getCurrentWaitingTick() { return waitingTicks; }
+	double getHitBoxSize() const { return hitBoxSize; }
+	std::string getState() const { return state; }
+
+	// setters/mutators:
+	void toggleActive() { active = !active; }
+	void setActive(bool shouldIBeActive) { active = shouldIBeActive; }
+	virtual bool setState(std::string newState) {
+		state = newState;
+		return true;
+	}
+
+
+	// Class Groups by Behaviors:
 	virtual bool hasGravity() const { return false; }
-	virtual bool isEnvironmentObject() { return false; }
+	virtual bool isEntityObject() const { return false; }
+	virtual bool isEnvironmentObject() const { return false; }
+	virtual bool isPlayerObject() const { return false; }
+	virtual bool isGoodieObject() const { return false; }
+
+	// Functionality:
+	virtual void update() {}
 	virtual void interactWith(Actor* a) {}
 
-	// Setters/Mutators
-	void toggleActive() { active = !active; }
-	void toggleClippable() { clippable = !clippable; }
-	void setWaiting(bool shouldIWait) { waiting = shouldIWait; }
-	virtual void resetWaitingTicks() { waitingTicks = 0; }
-
-	// Actor Functionality:
-
-
+	struct HitBox {
+		int x, y; //bottom-left corner
+		int size;
+	};
+protected:
+	void setClippable(bool shouldIBeClippable) { clippable = shouldIBeClippable; }
 
 private:
 	StudentWorld* studentWorld;
 	GraphObject::Direction direction = GraphObject::Direction::right;
 	bool active = true;
 	bool clippable = false;
-	bool waiting = false;
-	int hitBoxSize; // **NOTE**: it seems hitBoxSize 4 times double the inherited: GraphObject::size
-	int waitingTicks = 0;
+	int hitBoxSize = 0;
+	std::string state = "";
+};
 
-protected:
-	void setWaitingTicks(int newWaitingTicks) { waitingTicks = newWaitingTicks; }
+class Entity : public Actor {
+public:
+	Entity(int imageID, int startX, int startY, GraphObject::Direction direction, double size, unsigned int depth, StudentWorld* sw, int hp)
+		: Actor(imageID, startX, startY, direction, size, depth, sw) {
+		hitPoints = hp;
+		setClippable(true);
+	}
+	~Entity();
+
+	// identifiers:
+	bool isEntityObject() const override { return true; }
+
+
+	int getHitPoints() const { return hitPoints; }
+	void takeDamage(unsigned int damageTaken) { hitPoints -= damageTaken; }
+
+private:
+	int hitPoints = 0;
+};
+
+class Iceman : public Entity {
+public:
+	Iceman(int startX, int startY, StudentWorld* sw) : Entity(IID_PLAYER, startX, startY, Direction::right, 1.00, 0, sw, 10) { }
+	~Iceman();
+	void update();
+
+	// getters
+	int getNumWaterSquirts() const { return waterSquirts; }
+	int getNumSonarCharges() const { return sonarCharges; }
+	int getNumGoldNuggets() const { return goldNuggets; }
+
+	// setters/mutators
+	void incWaterSquirts() { waterSquirts++; }
+	void incSonarCharges() { sonarCharges++; }
+	void incGoldNuggets() { goldNuggets++; }
+	void decNumWaterSquirts() { waterSquirts--; }
+	void decNumSonarCharges() { sonarCharges--; }
+	void decNumGoldNuggets() { goldNuggets--; }
+
+	// Identifiers:
+	bool isPlayerObject() const override { return true; }
+
+	// Functionality:
+	void interactWith(Actor* a) override;
+
+private:
+	int waterSquirts = 5;
+	int sonarCharges = 1;
+	int goldNuggets = 0;
+
+	// update() helpers:
+	void handleInput();
+	void handleSonarKeyInput();
+	void handleGoldNuggetKeyInput();
+
+	// Abilities:
+	// DECLARE: void dropGoldNugget();
 };
 
 class Environment : public Actor {
 public:
 	Environment(int imageID, int startX, int startY, GraphObject::Direction direction, double size, unsigned int depth, StudentWorld* sw)
 		:Actor(imageID, startX, startY, direction, size, depth, sw) {}
+
 	~Environment();
-	void update();
-	// void doSomething();
-	virtual bool isEnvironmentObject() override { return true; }
+	// DECLARE: void update();
+
+	// identifiers:
+	virtual bool isEnvironmentObject() const override { return true; }
 private:
 };
 
@@ -67,58 +136,66 @@ public:
 	Goodies(int imageID, int startX, int startY, GraphObject::Direction direction, double size, unsigned int depth, StudentWorld* sw)
 		:Environment(imageID, startX, startY, direction, size, depth, sw) {}
 	~Goodies();
-	virtual void update();
-	// virtual void doSomething();
-private:
-};
 
-class Ice : public Environment {
-public: 
-	Ice(int startX, int startY, StudentWorld* sw)
-		:Environment(IID_ICE, startX, startY, Direction::right, 0.25, 3, sw) {
-	}
-	~Ice();
-	void update();
-	// void doSomething();
+	bool isGoodieObject() const override { return true; }
+	// DECLARE: virtual void update();
 private:
 };
 
 class Boulder : public Environment {
-public: 
+public:
 	Boulder(int startX, int startY, StudentWorld* sw)
 		:Environment(IID_BOULDER, startX, startY, Direction::right, 1, 1, sw) {
-		setWaitingTicks(DEFAULT_BOULDER_WAITING_TICKS);
+		setClippable(true);
 	}
 	~Boulder();
-	void update();
-	void resetWaitingTicks() { setWaitingTicks(DEFAULT_BOULDER_WAITING_TICKS); }
-	// void doSomething();
+	bool hasGravity() const { return true; }
+	void update() override;
+
+	// getters
+	int getCurrentWaitingTick() const { return currentWaitingTick; }
+
+	// settters/mutators
+	void decCurrentWaitingTick() { currentWaitingTick--; }
+
+	// Functionality:
+	void interactWith(Actor* a) override;
 private:
 	int DEFAULT_BOULDER_WAITING_TICKS = 30;
-	bool hasGravity() const override { return true; }
+	int currentWaitingTick = DEFAULT_BOULDER_WAITING_TICKS;
 };
 
 class GoldNugget : public Goodies {
 public:
 	GoldNugget(int startX, int startY, StudentWorld* sw)
-		:Goodies(IID_GOLD, startX, startY, Direction::right, 1.00, 0, sw) {}
+		:Goodies(IID_GOLD, startX, startY, Direction::right, 1.00, 2, sw) {
+	}
 	~GoldNugget();
-	void update();
-	void handlePlayerInteraction(Iceman* player) override;
-	// void doSomething();
-	void setCanProtestorPickUp(bool shouldProtestorPickUp) { 
+
+
+	// getters
+	bool getCanProtestorPickUp() const { return canProtestorPickUp; }
+	bool getCanPlayerPickUp() const { return canPlayerPickUp; }
+
+	// setters/mutators
+	void setCanProtestorPickUp(bool shouldProtestorPickUp) {
 		canProtestorPickUp = shouldProtestorPickUp;
 		canPlayerPickUp = !canProtestorPickUp;
 		isPermanent = canPlayerPickUp;
 	}
-	void setCanPlayerPickUp(bool shouldPlayerPickUp) { 
-		canPlayerPickUp = shouldPlayerPickUp; 
+	void setCanPlayerPickUp(bool shouldPlayerPickUp) {
+		canPlayerPickUp = shouldPlayerPickUp;
 		canProtestorPickUp = !canPlayerPickUp;
 		isPermanent = canPlayerPickUp;
 	}
+
+	// Functionality:
+	void update();
+	void interactWith(Actor* a) override;
 private:
 	// SET LIFETIME_TICKS IN CONSTR BASED ON SOMETHING IDK
 	int lifetimeTicks = 120;
+
 	// INVARIANT: isPermanent = canPlayerPickUp = !canProtestorPickUp
 	bool canPlayerPickUp = true;
 	bool canProtestorPickUp = false;
@@ -128,71 +205,40 @@ private:
 class BarrelOfOil : public Goodies {
 public:
 	BarrelOfOil(int startX, int startY, StudentWorld* sw)
-		:Goodies(IID_BARREL, startX, startY, Direction::right, 1.00, 0, sw) {}
+		:Goodies(IID_BARREL, startX, startY, Direction::right, 1.00, 2, sw) {
+	}
 	~BarrelOfOil();
+
 	void update();
-	void handlePlayerInteraction(Iceman* player) override;
-	// void doSomething();
+	void interactWith(Actor* a) override;
 private:
 };
 
 class SonarKit : public Goodies {
 public:
-	SonarKit(StudentWorld* sw)
-		:Goodies(IID_SONAR, 0, 60, Direction::right, 1.00, 0, sw)
-	{
-		//int T = max(100, int(300 - 10 * getStudentWorld()->getLevel()));
-		//lifetimeTicks;
+	SonarKit(StudentWorld* sw, int level)
+		:Goodies(IID_SONAR, 0, 60, Direction::right, 1.00, 2, sw) {
+		int n = 10 * level;
+		lifetimeTicks = std::max(100, 300 - n);
 	}
-	void handlePlayerInteraction(Iceman* player) override;
-private: 
+
+	void update() override;
+	void interactWith(Actor* a) override;
+private:
 	int lifetimeTicks = 0;
 };
 
-
-class Iceman : public Actor {
+class Ice : public Environment {
 public:
-	Iceman(int startX, int startY, StudentWorld* sw) : Actor(IID_PLAYER, startX, startY, Direction::right, 1.00, 0, sw) {}
-	~Iceman();
-	void update();
-	void interactWith(Actor* a) override {
-		if (a->isEnvironmentObject())
-			a->handlePlayerInteraction(this);
+	Ice(int startX, int startY, StudentWorld* sw)
+		:Environment(IID_ICE, startX, startY, Direction::right, 0.25, 3, sw) {
+		setClippable(true);
 	}
-	
-	// getters
-	int getHitPoints() const { return hitPoints; }
-	int getWaterSquirts() const { return waterSquirts; }
-	int getSonarCharges() const { return sonarCharges; }
-	int getGoldNuggets() const { return goldNuggets; }
-
-	// setters
-	void incGoldNuggets() { goldNuggets++; }
-	void decGoldNuggets() { goldNuggets--; }
-
-	// void doSomething();
+	~Ice();
+	// DECLARE: void update();
 private:
-	int hitPoints = 10;
-	int waterSquirts = 5;
-	int sonarCharges = 1;
-	int goldNuggets = 0;
-
-	// update() helpers:
-	void handleInput();
-	void dropGoldNugget();
 };
 
-//---****CODE FOR ROY****---
-// TODO: Created derived classes HardcoreProtestor and RegularProtestor
-// Please read the Object Orientated Programming Tips on Project 4 Page
-// I haven't read the docs for Protestors yet but you can probably start implementing their search algorithms
-// It's probably best for the algorithm to be implemented in StudentWorld since it has access to Ice2DArray
-// >>> Have the alogrithm move the protestors in StudentWorld 
-class Protestor : public Actor {
-public:
-	Protestor(int imageID, int startX, int startY, GraphObject::Direction direction, double size, unsigned int depth, StudentWorld* sw)
-		: Actor(imageID, startX, startY, direction, size, depth, sw) {}
-	~Protestor() = 0;
-};
 
-#endif ACTOR_H_
+
+#endif // ACTOR_H_
