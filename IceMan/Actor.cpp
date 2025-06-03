@@ -69,6 +69,9 @@ void Iceman::handleInput()
 		case KEY_PRESS_TAB:
 			handleGoldNuggetKeyInput();
 			break;
+
+		case KEY_PRESS_SPACE:
+			handleSquirtKeyInput();
 		}
 	}
 }
@@ -89,6 +92,37 @@ void Iceman::handleGoldNuggetKeyInput()
 		g->setCanProtestorPickUp(true);
 		g->setVisible(true);
 		getStudentWorld()->addActor(g);
+	}
+}
+
+void Iceman::handleSquirtKeyInput()
+{
+	if (getNumWaterSquirts() > 0) {
+		// find coords to place squirt in front of Player:
+		int x = getX();
+		int y = getY();
+
+
+		switch (getDirection()) {
+		case GraphObject::Direction::down:
+			y -= 4;
+			break;
+		case GraphObject::Direction::left:
+			x -= 4;
+			break;
+		case GraphObject::Direction::up:
+			y += 4;
+			break;
+		
+		case GraphObject::Direction::right:
+		default:
+			x += 4;
+			break;
+		}
+		
+		Squirt* s = new Squirt(x, y, getDirection(), getStudentWorld());
+		getStudentWorld()->addActor(s);
+		decNumWaterSquirts();
 	}
 }
 
@@ -132,6 +166,41 @@ void Boulder::interactWith(Actor* a)
 		if (state == "falling") {
 			static_cast<Entity*>(a)->takeDamage(10);
 		}
+	}
+}
+
+void Squirt::update()
+{
+	if (!isActive())
+		return;
+
+	if (getTravelDistance() >= MAX_TRAVEL_DISTANCE || !getStudentWorld()->isEmptySpace(this) ){
+		setActive(false);
+		return;
+	}
+
+	else if (getTravelDistance() < MAX_TRAVEL_DISTANCE) {
+		incrementDistanceTraveled();
+	}
+
+	// handle direction:
+	int x = getX();
+	int y = getY();
+
+	switch (getDirection()) {
+	case GraphObject::Direction::down:
+		moveTo(x, y - 1);
+		break;
+	case GraphObject::Direction::left:
+		moveTo(x-1, y);
+		break;
+	case GraphObject::Direction::up:
+		moveTo(x, y + 1);
+		break;
+	case GraphObject::Direction::right:
+	default:
+		moveTo(x + 1, y);
+		break;
 	}
 }
 

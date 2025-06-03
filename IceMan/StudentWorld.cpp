@@ -39,7 +39,9 @@ int StudentWorld::init() {
 	// Create Tunnel by deactivating Ice 
 	for (int col = 30; col <= 33; col++) {
 		for (int row = 4; row <= 59; row++) {
-			ice2DArray[col][row]->toggleActive();
+			//ice2DArray[col][row]->toggleActive();
+			delete ice2DArray[col][row];
+			ice2DArray[col][row] = nullptr;
 		}
 	}
 
@@ -56,8 +58,6 @@ int StudentWorld::init() {
 	iceman = new Iceman(30, 60, this);
 	iceman->setVisible(true);
 
-	// TODO: Figure out when to update level
-	// advanceToNextLevel();
 	return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -70,7 +70,7 @@ int StudentWorld::move() {
 	spawnRandomGoodies();
 	removeDeadGameObjects();
 
-	return GWSTATUS_CONTINUE_GAME;
+	return determineGameStatus();
 }
 
 void StudentWorld::cleanUp()
@@ -79,6 +79,15 @@ void StudentWorld::cleanUp()
 	for (int col = 0; col < ICE_ARRAY_SIZE; col++)
 		for (int row = 0; row < ICE_ARRAY_SIZE; row++)
 			delete ice2DArray[col][row];
+
+	// Clean-up Actors
+	for (int i = 0; i < actors.size(); i++) {
+		delete actors[i];
+		actors[i] = nullptr;
+	}
+	actors.clear();
+
+	delete iceman;
 }
 
 // Private Functions:
@@ -99,7 +108,7 @@ void StudentWorld::distributeBoulders(vector<Actor*>& actors)
 		do {
 			boulderSpawnX = static_cast<int>(rand() % (61 - 4) + 0);
 			boulderSpawnY = static_cast<int>(rand() % 37 + 20);
-		} while (isSpawnTooCloseToOtherActors(boulderSpawnX, boulderSpawnY, 1.0, actors) || !isInTunnel(boulderSpawnX, boulderSpawnY, 1.0));
+		} while (isSpawnTooCloseToOtherActors(boulderSpawnX, boulderSpawnY, 1.0, actors) || isEmptySpace(boulderSpawnX, boulderSpawnY, 1.0));
 
 		// Clear 4x4 Ice Around Boulders
 		for (int j = 0; j < 4; j++) {
@@ -124,7 +133,7 @@ void StudentWorld::distributeGoldNuggets(std::vector<Actor*>& actors)
 		do {
 			goldNuggetSpawnX = static_cast<int>(rand() % (61 - 4) + 0);
 			goldNuggetSpawnY = static_cast<int>(rand() % 56 + 0);
-		} while (isSpawnTooCloseToOtherActors(goldNuggetSpawnX, goldNuggetSpawnY, 1.0, actors) || !isInTunnel(goldNuggetSpawnX, goldNuggetSpawnY, 1.0));
+		} while (isSpawnTooCloseToOtherActors(goldNuggetSpawnX, goldNuggetSpawnY, 1.0, actors) || isEmptySpace(goldNuggetSpawnX, goldNuggetSpawnY, 1.0));
 
 		actors.push_back(new GoldNugget(goldNuggetSpawnX, goldNuggetSpawnY, this));
 	}
@@ -139,7 +148,7 @@ void StudentWorld::distributeBarrelsOfOil(std::vector<Actor*>& actors)
 		do {
 			barrelOfOilSpawnX = static_cast<int>(rand() % (61 - 4) + 0);
 			barrelOfOilSpawnY = static_cast<int>(rand() % 56 + 0);
-		} while (isSpawnTooCloseToOtherActors(barrelOfOilSpawnX, barrelOfOilSpawnY, 1.0, actors) || !isInTunnel(barrelOfOilSpawnX, barrelOfOilSpawnY, 1.0));
+		} while (isSpawnTooCloseToOtherActors(barrelOfOilSpawnX, barrelOfOilSpawnY, 1.0, actors) || isEmptySpace(barrelOfOilSpawnX, barrelOfOilSpawnY, 1.0));
 
 		actors.push_back(new BarrelOfOil(barrelOfOilSpawnX, barrelOfOilSpawnY, this));
 	}
@@ -159,23 +168,32 @@ bool StudentWorld::isSpawnTooCloseToOtherActors(int x, int y, double size, const
 	return false;
 }
 
-bool StudentWorld::isInTunnel(int x, int y, double size)
+bool StudentWorld::isEmptySpace(int x, int y, double size)
 {
 	int hitBoxSize = static_cast<int>(size * 4);
+	// Counts space ABOVE icefield as empty space:
+	// x: [0, 60)
+	// y: [60, 64)
+	if (y >= 60 && y < 64 && x >= 0 && x < 60)
+		return true;
+
+	// Out of bounds for ice2DArray
+	if (x < 0|| y < 0 || x + hitBoxSize > ICE_ARRAY_SIZE || y + hitBoxSize > ICE_ARRAY_SIZE)
+		return false; 
+
 	for (int i = 0; i < hitBoxSize; i++) {
 		for (int j = 0; j < hitBoxSize; j++) {
-			int currX = x + i;
-			int currY = y + j;
-			if (currX >= 30 && currX <= 33 && currY >= 4 && currY <= 59)
+			if (ice2DArray[x + i][y + j] != nullptr)
 				return false;
 		}
 	}
+
 	return true;
 }
 
-bool StudentWorld::isInTunnel(Actor* a)
+bool StudentWorld::isEmptySpace(Actor* a)
 {
-	return isInTunnel(a->getX(), a->getY(), a->getSize());
+	return isEmptySpace(a->getX(), a->getY(), a->getSize());
 }
 
 bool StudentWorld::checkCoordsAreValid(int x, int y, int size) const {
@@ -336,7 +354,6 @@ bool StudentWorld::checkBelowForIce(Actor* a)
 	return false;
 }
 
-
 void StudentWorld::mineIce()
 {
 	Actor::Direction d = iceman->getDirection();
@@ -397,16 +414,30 @@ void StudentWorld::auxMineIce(Ice* iceToBreak, int iceX, int iceY)
 	}
 }
 
+int StudentWorld::determineGameStatus()
+{
+	if (iceman->getHitPoints() <= 0)
+		return GWSTATUS_PLAYER_DIED;
+
+	else if (numBarrelsOfOil <= 0) {
+		return GWSTATUS_FINISHED_LEVEL;
+	}
+
+	return GWSTATUS_CONTINUE_GAME;
+}
+
+
 void StudentWorld::useSonarKit(Actor* a1)
 {
 	for (Actor* a2 : actors) {
 		if (a1 == nullptr || a2 == nullptr)
 			continue;
 
-		if (a2->isGoodieObject() && calculateDistance(a1, a2) < 12)
+		if (a2->isGoodieObject() && calculateDistance(a1, a2) < 100)
 			a2->setVisible(true);
 	}
 }
+
 
 // general helper functions:
 double StudentWorld::calculateDistance(const Actor* a1, const Actor* a2) const {

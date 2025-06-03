@@ -38,6 +38,7 @@ public:
 
 	// Functionality:
 	void useSonarKit(Actor* a);
+	bool isEmptySpace(Actor* a);
 	bool checkCoordsAreValid(int x, int y, int size) const;
 
 private:
@@ -56,8 +57,7 @@ private:
 	void distributeGoldNuggets(std::vector<Actor*>& actors);
 	void distributeBarrelsOfOil(std::vector<Actor*>& actors);
 	bool isSpawnTooCloseToOtherActors(int x, int y, double size, const std::vector<Actor*>& actors);
-	bool isInTunnel(int x, int y, double objectSize);
-	bool isInTunnel(Actor* a);
+	bool isEmptySpace(int x, int y, double objectSize);
 
 	// move() helpers
 	void updateDisplayText();
@@ -75,7 +75,6 @@ private:
 	// move() helpers-->updateAllActors() helpers:
 	void updateAllActors();
 	bool checkBelowForIce(Actor* a);
-
 	int determineGameStatus();
 
 	// general helper functions:

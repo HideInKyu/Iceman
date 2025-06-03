@@ -113,6 +113,7 @@ private:
 	void handleInput();
 	void handleSonarKeyInput();
 	void handleGoldNuggetKeyInput();
+	void handleSquirtKeyInput();
 
 	// Abilities:
 	// DECLARE: void dropGoldNugget();
@@ -164,6 +165,31 @@ private:
 	int DEFAULT_BOULDER_WAITING_TICKS = 30;
 	int currentWaitingTick = DEFAULT_BOULDER_WAITING_TICKS;
 };
+
+class Squirt : public Environment {
+public:
+	Squirt(int startX, int startY, GraphObject::Direction dir, StudentWorld* sw)
+		:Environment(IID_WATER_SPURT, startX, startY, dir, 1, 1, sw) {
+		setVisible(true);
+		setDirection(dir);
+	}
+
+	const int MAX_TRAVEL_DISTANCE = 12;
+	// getter:
+	int getTravelDistance() const { return travelDistance; }
+
+	// setter/mutator
+	void incrementDistanceTraveled() { travelDistance++; }
+
+	// functionality:
+	void update() override;
+	//void interactWith(Actor* a) override;
+
+private:
+	int travelDistance = 0;
+
+};
+
 
 class GoldNugget : public Goodies {
 public:
@@ -233,6 +259,7 @@ public:
 	Ice(int startX, int startY, StudentWorld* sw)
 		:Environment(IID_ICE, startX, startY, Direction::right, 0.25, 3, sw) {
 		setClippable(true);
+
 	}
 	~Ice();
 	// DECLARE: void update();

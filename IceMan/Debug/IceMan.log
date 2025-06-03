@@ -3,13 +3,14 @@ C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(16,76): warning C4244: 'initia
   (compiling source file 'StudentWorld.cpp')
   
 C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(24,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(150,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(185,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(220,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(250,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(266,12): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(270,12): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(287,12): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(298,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(328,17): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(84,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(159,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(203,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(238,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(268,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(284,12): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(288,12): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(305,12): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(316,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(346,17): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
   IceMan.vcxproj -> C:\Users\marec\source\repos\IceMan\Debug\IceMan.exe
