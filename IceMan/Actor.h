@@ -143,6 +143,19 @@ public:
 private:
 };
 
+class Ice : public Environment {
+public:
+	Ice(int startX, int startY, StudentWorld* sw)
+		:Environment(IID_ICE, startX, startY, Direction::right, 0.25, 3, sw) {
+		setClippable(true);
+
+	}
+	~Ice();
+	// DECLARE: void update();
+private:
+};
+
+// TODO: Can probably make lifeTimeTicks or some sort of liftetime counter universal among ALL environment objects (not necessary but good practice).
 class Boulder : public Environment {
 public:
 	Boulder(int startX, int startY, StudentWorld* sw)
@@ -244,6 +257,7 @@ class SonarKit : public Goodies {
 public:
 	SonarKit(StudentWorld* sw, int level)
 		:Goodies(IID_SONAR, 0, 60, Direction::right, 1.00, 2, sw) {
+		setVisible(true);
 		int n = 10 * level;
 		lifetimeTicks = std::max(100, 300 - n);
 	}
@@ -254,16 +268,20 @@ private:
 	int lifetimeTicks = 0;
 };
 
-class Ice : public Environment {
+class WaterPool : public Goodies {
 public:
-	Ice(int startX, int startY, StudentWorld* sw)
-		:Environment(IID_ICE, startX, startY, Direction::right, 0.25, 3, sw) {
-		setClippable(true);
-
+	WaterPool(int startX, int startY, StudentWorld* sw, int level)
+		:Goodies(IID_WATER_POOL, startX, startY, Direction::right, 1.0, 2, sw) {
+		setVisible(true);
+		int n = 10 * level;
+		lifetimeTicks = std::max(100, 300 - n);
 	}
-	~Ice();
-	// DECLARE: void update();
+	
+	void update() override;
+	void interactWith(Actor* a) override;
 private:
+	int lifetimeTicks = 0;
+
 };
 
 

@@ -251,11 +251,20 @@ void StudentWorld::spawnRandomGoodies()
 		int G2 = (rand() % 5) + 1;
 		if (G2 <= 4) {
 			// Spawn Water
+			int x = 0;
+			int y = 0;
+			do {
+				x = rand() % (ICE_ARRAY_SIZE + 1);
+				y = rand() % (ICE_ARRAY_SIZE + 1);
+			} while (!isEmptySpace(x, y, 1.0));
+			
+			Actor* temp = new WaterPool(x,y, this, getLevel());
+			actors.push_back(temp);
+			temp = nullptr;
 		}
 		else if (G2 == 5) {
 			// Spawn Sonar Kit
 			Actor* temp = new SonarKit(this, getLevel());
-			temp->setVisible(true);
 			actors.push_back(temp);
 			temp = nullptr;
 		}

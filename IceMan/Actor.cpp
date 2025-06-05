@@ -257,7 +257,7 @@ void SonarKit::update()
 	if (!isActive())
 		return;
 
-	if (lifetimeTicks < 0)
+	if (lifetimeTicks <= 0)
 		setActive(false);
 
 	lifetimeTicks--;
@@ -272,5 +272,31 @@ void SonarKit::interactWith(Actor* a) {
 			getStudentWorld()->playSound(SOUND_GOT_GOODIE);
 			setActive(false);
 		}
+	}
+}
+
+void WaterPool::update()
+{
+	if (!isActive())
+		return;
+
+	if (lifetimeTicks <= 0)
+		setActive(false);
+
+	lifetimeTicks--;
+}
+
+void WaterPool::interactWith(Actor* a)
+{
+	if (a->isPlayerObject()) {
+		Iceman* player = dynamic_cast<Iceman*>(a);
+		if (player != nullptr) {
+			setActive(false);
+			getStudentWorld()->playSound(SOUND_GOT_GOODIE);
+			for (int i = 1; i <= 5; i++)
+				player->incWaterSquirts();
+			getStudentWorld()->increaseScore(100);
+		}
+
 	}
 }
