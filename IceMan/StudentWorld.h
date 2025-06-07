@@ -58,6 +58,7 @@ private:
 	void distributeBarrelsOfOil(std::vector<Actor*>& actors);
 	bool isSpawnTooCloseToOtherActors(int x, int y, double size, const std::vector<Actor*>& actors);
 	bool isEmptySpace(int x, int y, double objectSize);
+	bool isInTunnelSpawn(int x, int y, double size);
 
 	// move() helpers
 	void updateDisplayText();

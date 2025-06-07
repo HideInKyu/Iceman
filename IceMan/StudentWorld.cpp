@@ -108,7 +108,7 @@ void StudentWorld::distributeBoulders(vector<Actor*>& actors)
 		do {
 			boulderSpawnX = static_cast<int>(rand() % (61 - 4) + 0);
 			boulderSpawnY = static_cast<int>(rand() % 37 + 20);
-		} while (isSpawnTooCloseToOtherActors(boulderSpawnX, boulderSpawnY, 1.0, actors) || isEmptySpace(boulderSpawnX, boulderSpawnY, 1.0));
+		} while (isSpawnTooCloseToOtherActors(boulderSpawnX, boulderSpawnY, 1.0, actors) || isInTunnelSpawn(boulderSpawnX, boulderSpawnY, 1.0));
 
 		// Clear 4x4 Ice Around Boulders
 		for (int j = 0; j < 4; j++) {
@@ -133,7 +133,7 @@ void StudentWorld::distributeGoldNuggets(std::vector<Actor*>& actors)
 		do {
 			goldNuggetSpawnX = static_cast<int>(rand() % (61 - 4) + 0);
 			goldNuggetSpawnY = static_cast<int>(rand() % 56 + 0);
-		} while (isSpawnTooCloseToOtherActors(goldNuggetSpawnX, goldNuggetSpawnY, 1.0, actors) || isEmptySpace(goldNuggetSpawnX, goldNuggetSpawnY, 1.0));
+		} while (isSpawnTooCloseToOtherActors(goldNuggetSpawnX, goldNuggetSpawnY, 1.0, actors) || isInTunnelSpawn(goldNuggetSpawnX, goldNuggetSpawnY, 1.0));
 
 		actors.push_back(new GoldNugget(goldNuggetSpawnX, goldNuggetSpawnY, this));
 	}
@@ -148,7 +148,7 @@ void StudentWorld::distributeBarrelsOfOil(std::vector<Actor*>& actors)
 		do {
 			barrelOfOilSpawnX = static_cast<int>(rand() % (61 - 4) + 0);
 			barrelOfOilSpawnY = static_cast<int>(rand() % 56 + 0);
-		} while (isSpawnTooCloseToOtherActors(barrelOfOilSpawnX, barrelOfOilSpawnY, 1.0, actors) || isEmptySpace(barrelOfOilSpawnX, barrelOfOilSpawnY, 1.0));
+		} while (isSpawnTooCloseToOtherActors(barrelOfOilSpawnX, barrelOfOilSpawnY, 1.0, actors) || isInTunnelSpawn(barrelOfOilSpawnX, barrelOfOilSpawnY, 1.0));
 
 		actors.push_back(new BarrelOfOil(barrelOfOilSpawnX, barrelOfOilSpawnY, this));
 	}
@@ -189,6 +189,21 @@ bool StudentWorld::isEmptySpace(int x, int y, double size)
 	}
 
 	return true;
+}
+
+
+bool StudentWorld::isInTunnelSpawn(int x, int y, double size)
+{
+	int hitBoxSize = static_cast<int>(size * 4);
+	for (int i = 0; i < hitBoxSize; i++) {
+		for (int j = 0; j < hitBoxSize; j++) {
+			int currX = x + i;
+			int currY = y + j;
+			if (currX >= 30 && currX <= 33 && currY >= 4 && currY <= 59)
+				return true;
+		}
+	}
+	return false;
 }
 
 bool StudentWorld::isEmptySpace(Actor* a)
@@ -442,7 +457,7 @@ void StudentWorld::useSonarKit(Actor* a1)
 		if (a1 == nullptr || a2 == nullptr)
 			continue;
 
-		if (a2->isGoodieObject() && calculateDistance(a1, a2) < 100)
+		if (a2->isGoodieObject() && calculateDistance(a1, a2) < 12)
 			a2->setVisible(true);
 	}
 }
