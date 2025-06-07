@@ -178,11 +178,19 @@ bool StudentWorld::isEmptySpace(int x, int y, double size)
 		return true;
 
 	// Out of bounds for ice2DArray
-	if (x < 0|| y < 0 || x + hitBoxSize > ICE_ARRAY_SIZE || y + hitBoxSize > ICE_ARRAY_SIZE)
-		return false; 
+	// if (x < 0|| y < 0 || x + hitBoxSize > ICE_ARRAY_SIZE || y + hitBoxSize > ICE_ARRAY_SIZE)
+		// return false; 
 
-	for (int i = 0; i < hitBoxSize; i++) {
-		for (int j = 0; j < hitBoxSize; j++) {
+	int validXCheckPixels = hitBoxSize;
+	int validYCheckPixels = hitBoxSize;
+
+	if (x < 0 || y < 0 || x + hitBoxSize > ICE_ARRAY_SIZE || y + hitBoxSize > ICE_ARRAY_SIZE) {
+		validXCheckPixels = x + hitBoxSize - ICE_ARRAY_SIZE;
+		validYCheckPixels = y + hitBoxSize - ICE_ARRAY_SIZE;
+	}
+
+	for (int i = 0; i < validXCheckPixels; i++) {
+		for (int j = 0; j < validYCheckPixels; j++) {
 			if (ice2DArray[x + i][y + j] != nullptr)
 				return false;
 		}

@@ -105,13 +105,13 @@ void Iceman::handleSquirtKeyInput()
 
 		switch (getDirection()) {
 		case GraphObject::Direction::down:
-			y -= 4;
+			y -= 2;
 			break;
 		case GraphObject::Direction::left:
-			x -= 4;
+			x -= 2;
 			break;
 		case GraphObject::Direction::up:
-			y += 4;
+			y += 2;
 			break;
 		
 		case GraphObject::Direction::right:
