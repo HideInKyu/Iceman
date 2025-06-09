@@ -1,10 +1,18 @@
-﻿  StudentWorld.cpp
-C:\Users\marec\source\repos\IceMan\IceMan\Actor.h(11,77): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+﻿  Actor.cpp
+  StudentWorld.cpp
+C:\Users\roybae\source\repos\Iceman\IceMan\Actor.h(11,77): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  (compiling source file 'Actor.cpp')
+  
+C:\Users\roybae\source\repos\Iceman\IceMan\Actor.h(11,77): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
   (compiling source file 'StudentWorld.cpp')
   
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(30,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(205,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(233,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(291,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\marec\source\repos\IceMan\IceMan\StudentWorld.cpp(301,20): warning C4018: '<': signed/unsigned mismatch
-  IceMan.vcxproj -> C:\Users\marec\source\repos\IceMan\Debug\IceMan.exe
+C:\Users\roybae\source\repos\Iceman\IceMan\StudentWorld.cpp(30,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\roybae\source\repos\Iceman\IceMan\StudentWorld.cpp(205,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\roybae\source\repos\Iceman\IceMan\StudentWorld.cpp(233,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\roybae\source\repos\Iceman\IceMan\StudentWorld.cpp(291,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\roybae\source\repos\Iceman\IceMan\StudentWorld.cpp(301,20): warning C4018: '<': signed/unsigned mismatch
+  GameController.cpp
+  GameWorld.cpp
+  main.cpp
+  Generating Code...
+  IceMan.vcxproj -> C:\Users\roybae\source\repos\Iceman\Debug\IceMan.exe
