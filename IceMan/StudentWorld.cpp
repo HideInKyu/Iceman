@@ -184,10 +184,12 @@ bool StudentWorld::isEmptySpace(int x, int y, double size)
 	int validXCheckPixels = hitBoxSize;
 	int validYCheckPixels = hitBoxSize;
 
-	if (x < 0 || y < 0 || x + hitBoxSize > ICE_ARRAY_SIZE || y + hitBoxSize > ICE_ARRAY_SIZE) {
+	if (x < 0 || x + hitBoxSize > ICE_ARRAY_SIZE) 
 		validXCheckPixels = x + hitBoxSize - ICE_ARRAY_SIZE;
+	
+	if (y < 0 || y + hitBoxSize > ICE_ARRAY_SIZE)
 		validYCheckPixels = y + hitBoxSize - ICE_ARRAY_SIZE;
-	}
+
 
 	for (int i = 0; i < validXCheckPixels; i++) {
 		for (int j = 0; j < validYCheckPixels; j++) {

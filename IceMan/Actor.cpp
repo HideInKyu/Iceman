@@ -72,6 +72,11 @@ void Iceman::handleInput()
 
 		case KEY_PRESS_SPACE:
 			handleSquirtKeyInput();
+			break;
+
+		case KEY_PRESS_ESCAPE:
+			takeDamage(10000);
+			break;
 		}
 	}
 }
@@ -211,7 +216,7 @@ void GoldNugget::update()
 	if (!isActive())
 		return;
 
-	if (lifetimeTicks < 0)
+	if (lifetimeTicks <= 0)
 		setActive(false);
 
 	bool permanent = canPlayerPickUp;
@@ -241,6 +246,9 @@ void BarrelOfOil::update()
 }
 
 void BarrelOfOil::interactWith(Actor* a) {
+	if (!isActive())
+		return;
+
 	if (a->isPlayerObject()) {
 		StudentWorld* playerWorld = a->getStudentWorld();
 		setActive(false);
