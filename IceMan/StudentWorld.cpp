@@ -518,8 +518,6 @@ void StudentWorld::useSonarKit(Actor* a1) {
 	}
 }
 
-
-// general helper functions:
 double StudentWorld::calculateDistance(const Actor* a1, const Actor* a2) const {
 	if (a1 == nullptr || a2 == nullptr) {
 		return 0;
@@ -689,7 +687,6 @@ bool StudentWorld::bribeProtesterAt(const Actor* goldNugget)
 
 Actor::Direction StudentWorld::findPathToIceman(const Actor* p, int& moves)
 {
-	// ... (the queue and distance grid setup is the same) ...
 	int distance[64][64];
 	for (int i = 0; i < 64; ++i) { for (int j = 0; j < 64; ++j) { distance[i][j] = -1; } }
 	std::queue<std::pair<int, int>> q;
@@ -707,8 +704,6 @@ Actor::Direction StudentWorld::findPathToIceman(const Actor* p, int& moves)
 		if (currX == pX && currY == pY)
 		{
 			moves = distance[currX][currY];
-			// BACKTRACKING TO FIND THE CORRECT FIRST STEP
-			// Check which neighbor of the protester is one step closer to the Iceman
 			if (pY > 0 && distance[pX][pY - 1] == moves - 1) return Actor::Direction::down;
 			if (pY < 60 && distance[pX][pY + 1] == moves - 1) return Actor::Direction::up;
 			if (pX > 0 && distance[pX - 1][pY] == moves - 1) return Actor::Direction::left;
@@ -716,19 +711,21 @@ Actor::Direction StudentWorld::findPathToIceman(const Actor* p, int& moves)
 			return Actor::Direction::none;
 		}
 
-		// Explore neighbors (using the fully qualified enum names)
 		if (isProtesterPathClear(currX, currY - 1) && distance[currX][currY - 1] == -1) {
 			distance[currX][currY - 1] = distance[currX][currY] + 1;
 			q.push({ currX, currY - 1 });
 		}
+
 		if (isProtesterPathClear(currX, currY + 1) && distance[currX][currY + 1] == -1) {
 			distance[currX][currY + 1] = distance[currX][currY] + 1;
 			q.push({ currX, currY + 1 });
 		}
+
 		if (isProtesterPathClear(currX - 1, currY) && distance[currX - 1][currY] == -1) {
 			distance[currX - 1][currY] = distance[currX][currY] + 1;
 			q.push({ currX - 1, currY });
 		}
+
 		if (isProtesterPathClear(currX + 1, currY) && distance[currX + 1][currY] == -1) {
 			distance[currX + 1][currY] = distance[currX][currY] + 1;
 			q.push({ currX + 1, currY });

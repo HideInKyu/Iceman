@@ -91,7 +91,6 @@ void Iceman::handleInput()
 
 		case KEY_PRESS_ESCAPE:
 			takeDamage(10000);
-			//getStudentWorld()->decLives();
 			break;
 		}
 	}
@@ -220,8 +219,6 @@ void Squirt::update()
 
 GoldNugget::~GoldNugget() {}
 
-// In Actor.cpp, replace the GoldNugget::update() method
-
 void GoldNugget::update()
 {
 	if (!isActive())
@@ -245,7 +242,6 @@ void GoldNugget::update()
 		return;
 	}
 
-	// NEW LOGIC: For protester-pickup-able nuggets (dropped by player)
 	if (getCanProtestorPickUp())
 	{
 		// Check if a protester is close enough to pick it up
@@ -397,30 +393,25 @@ void Protester::update()
 
 void Protester::takeDamage(unsigned int damageAmount, bool bonkedByBoulder)
 {
-	if (m_leaveOilFieldState) // Already leaving, cannot be annoyed further
-		return;
-
-	Entity::takeDamage(damageAmount); // Decrease HP from Entity base class
+	if (m_leaveOilFieldState) return;
+	Entity::takeDamage(damageAmount);
 
 	if (getHitPoints() > 0)
 	{
-		// Didn't give up yet, just stunned
 		getStudentWorld()->playSound(SOUND_PROTESTER_ANNOYED);
 		int ticksToStun = std::max(50, 100 - (int)getStudentWorld()->getLevel() * 10);
-		m_restingTicks += ticksToStun; // Add stun time to resting ticks
+		m_restingTicks += ticksToStun;
 	}
 	else
 	{
-		// Gave up!
 		m_leaveOilFieldState = true;
 		getStudentWorld()->playSound(SOUND_PROTESTER_GIVE_UP);
-		m_restingTicks = 0; // Start leaving immediately
+		m_restingTicks = 0; 
 
 		if (bonkedByBoulder) {
 			getStudentWorld()->increaseScore(500);
 		}
 		else {
-			// Check which type of protester this is to award correct points
 			if (dynamic_cast<HardcoreProtester*>(this))
 				getStudentWorld()->increaseScore(250);
 			else
@@ -497,11 +488,9 @@ void Protester::doCommonAI()
 		return;
 	}
 
-	// If we can't see the player, decrement move counter
 	m_numSquaresToMoveInCurrentDirection--;
 	if (m_numSquaresToMoveInCurrentDirection <= 0)
 	{
-		// Time to pick a new direction
 		std::vector<Actor::Direction> validDirections;
 		for (int i = 1; i <= 4; ++i) {
 			Actor::Direction dir = (Actor::Direction)i;
@@ -513,7 +502,7 @@ void Protester::doCommonAI()
 			setDirection(validDirections[rand() % validDirections.size()]);
 			m_numSquaresToMoveInCurrentDirection = (rand() % 53) + 8;
 		}
-		return; // End turn after picking new direction
+		return;
 	}
 
 	if (m_perpendicularTurnTickCount >= 200)
@@ -549,7 +538,7 @@ void Protester::doCommonAI()
 		moveTo(targetX, targetY);
 	}
 	else {
-		m_numSquaresToMoveInCurrentDirection = 0; // Blocked, so pick a new direction next time
+		m_numSquaresToMoveInCurrentDirection = 0;
 	}
 }
 
@@ -560,8 +549,8 @@ void RegularProtester::performNormalProtesterBehavior() {
 void RegularProtester::pickedUpGoldNugget()
 {
 	getStudentWorld()->increaseScore(25);
-	m_leaveOilFieldState = true; // Immediately decide to leave
-	m_restingTicks = 0; // Don't wait, start leaving now
+	m_leaveOilFieldState = true;
+	m_restingTicks = 0;
 }
 
 HardcoreProtester::HardcoreProtester(int startX, int startY, StudentWorld* sw)
@@ -572,10 +561,10 @@ HardcoreProtester::~HardcoreProtester() {}
 
 void HardcoreProtester::performNormalProtesterBehavior()
 {
-	// A hardcore protester first tries its special tracking...
 	int M = 16 + getStudentWorld()->getLevel() * 2;
 	int movesToPlayer = -1;
 	Actor::Direction dirToPlayer = getStudentWorld()->findPathToIceman(this, movesToPlayer);
+
 
 	if (movesToPlayer != -1 && movesToPlayer <= M)
 	{
@@ -588,16 +577,12 @@ void HardcoreProtester::performNormalProtesterBehavior()
 		moveTo(targetX, targetY);
 		return;
 	}
-
-	// ...if tracking fails, it falls back to the common AI
 	doCommonAI();
 }
 
 void HardcoreProtester::pickedUpGoldNugget()
 {
 	getStudentWorld()->increaseScore(50);
-
-	// Stare at the gold for a little while instead of leaving
 	int ticksToStare = std::max(50, 100 - (int)getStudentWorld()->getLevel() * 10);
-	m_restingTicks += ticksToStare; // Add stare time to resting ticks
+	m_restingTicks += ticksToStare;
 }
